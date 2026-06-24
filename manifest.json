@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Tenor GIF Search for Twitter/X",
+  "name": "reTenor",
   "version": "1.0",
   "description": "Replaces Twitter's GIF search with Tenor's",
   "permissions": ["webRequest"],
