@@ -6,6 +6,8 @@ Please open an issue for any bugs
 
 I have a similar project for Vencord called [tenorGifSearch](https://github.com/Lunascaped/tenorGifSearch)
 
+Icon made by [BlobMedia](https://youtube.com/@blob8556)
+
 ## For Installation
 
 1. Click the green "Code" button above and download the ZIP file.
