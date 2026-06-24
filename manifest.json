@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Tenor GIF Search for Twitter/X",
+  "version": "1.0",
+  "description": "Replaces Twitter's GIF search with Tenor's",
+  "permissions": ["webRequest"],
+  "host_permissions": [
+    "https://api.tenor.com/*",
+    "https://x.com/*",
+	"https://twitter.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["inject.js"],
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["content.js"],
+      "world": "ISOLATED"
+    }
+  ]
+}
