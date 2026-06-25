@@ -8,6 +8,8 @@ I have a similar project for Vencord called [tenorGifSearch](https://github.com/
 
 Icon made by [BlobMedia](https://youtube.com/@blob8556)
 
+![Comparison](comparison.png "A screenshot comparing the Twitter gif search results with and without reTenor.")
+
 ## For Installation
 
 1. Click the green "Code" button above and download the ZIP file.
