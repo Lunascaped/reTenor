@@ -12,13 +12,19 @@ Icon made by [BlobMedia](https://youtube.com/@blob8556)
 
 ## For Installation
 
+### Chrome
 1. Click the green "Code" button above and download the ZIP file.
 2. Unzip it
 3. Open your extensions page (chrome://extensions/ on Chrome) and hit "Developer mode" on the top right.
 4. Click "Load unpacked" and select the folder you unzipped.
 5. You should now see the extension in your extensions page.
+6. Have Fun!
 
-I promise I'll make this easier at some point.
+### Firefox
+
+1. Install the extension from [the Firefox Addon Store.](https://addons.mozilla.org/en-US/firefox/addon/retenor/)
+2. Have fun!
+
 
 ### Please leave a star :)
 
