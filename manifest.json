@@ -3,7 +3,7 @@
   "name": "reTenor",
   "version": "1.0",
   "description": "Replaces Twitter's GIF search with Tenor's",
-  "permissions": ["webRequest"],
+  "permissions": [""],
   "host_permissions": [
     "https://api.tenor.com/*",
     "https://x.com/*",
