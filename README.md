@@ -13,12 +13,8 @@ Icon made by [BlobMedia](https://youtube.com/@blob8556)
 ## For Installation
 
 ### Chrome
-1. Click the green "Code" button above and download the ZIP file.
-2. Unzip it
-3. Open your extensions page (chrome://extensions/ on Chrome) and hit "Developer mode" on the top right.
-4. Click "Load unpacked" and select the folder you unzipped.
-5. You should now see the extension in your extensions page.
-6. Have Fun!
+1. Install the extension from [the Chrome Web Store.](https://chromewebstore.google.com/detail/retenor/ljbgbggcgplnjehnjjhbpgajdjaejoml)
+2. Have fun!
 
 ### Firefox
 
