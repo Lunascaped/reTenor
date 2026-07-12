@@ -61,7 +61,9 @@ function transformSearch(tenor) {
       id: `tenor_${r.id}`,
       found_media_origin: { provider: "tenor", id: String(r.id) },
       url: r.itemurl || r.url || "",
-      thumbnail_images: [gif],
+      thumbnail_images: [tinygif, nanogif, mediumgif, defaultgif].filter(
+        (candidate) => candidate.byte_count > 0,
+      ),
       original_image: gif,
       preview_image: gif,
       alt_text: r.title || "",
