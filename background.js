@@ -1,4 +1,6 @@
 const TENOR_API_KEY = "3Z0688EVWYKH";
+const EMPTY_GIF = { url: "", width: 0, height: 0, byte_count: 0, size_limit_exceeded: false, still_image_url: "" };
+const FILE_SIZE_LIMIT = "15728640"; // 15 MB
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.action === "search" || msg.action === "categoryView") {
@@ -42,10 +44,16 @@ async function fetchTenorCategories() {
 function transformSearch(tenor) {
   const items = (tenor.results || []).map((r) => {
     const m = r.media?.[0] || {};
-    const gif = m.gif;
-    const tinygif = m.tinygif;
-    const nanogif = m.nanogif;
-    const medgif = m.mediumgif;
+
+    const defaultgif = mediaObj(m.gif);
+    const tinygif = mediaObj(m.tinygif);
+    const medgif = mediaObj(m.mediumgif);
+    const nanogif = mediaObj(m.nanogif);
+
+    const gif =
+      [defaultgif, tinygif, medgif, nanogif].find(
+        (candidate) => !candidate.size_limit_exceeded,
+      ) || EMPTY_GIF;
 
     return {
       provider: { name: "tenor", display_name: "Tenor", icon_images: [] },
@@ -53,12 +61,9 @@ function transformSearch(tenor) {
       id: `tenor_${r.id}`,
       found_media_origin: { provider: "tenor", id: String(r.id) },
       url: r.itemurl || r.url || "",
-      thumbnail_images: [
-        mediaObj(medgif || tinygif),
-        mediaObj(tinygif || nanogif),
-      ],
-      original_image: mediaObj(gif),
-      preview_image: mediaObj(gif),
+      thumbnail_images: [gif],
+      original_image: gif,
+      preview_image: gif,
       alt_text: r.title || "",
       object_type: "item",
     };
@@ -86,12 +91,13 @@ function transformCategories(tenor) {
 }
 
 function mediaObj(m) {
-  if (!m?.url) return { url: "", width: 0, height: 0, byte_count: 0, still_image_url: "" };
+  if (!m?.url) return EMPTY_GIF;
   return {
     url: m.url,
     width: m.dims?.[0] || 0,
     height: m.dims?.[1] || 0,
     byte_count: m.size || 0,
+    size_limit_exceeded: m.size > FILE_SIZE_LIMIT,
     still_image_url: m.preview || m.url,
   };
 }
