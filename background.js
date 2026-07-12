@@ -19,7 +19,7 @@ async function fetchTenorSearch(query, cursor) {
       key: TENOR_API_KEY,
       q: query,
       limit: "50",
-      media_filter: "basic",
+      media_filter: "default",
     });
     if (cursor) params.set("pos", cursor);
     const res = await fetch(`https://api.tenor.com/v1/search?${params}`);
@@ -46,13 +46,13 @@ function transformSearch(tenor) {
     const m = r.media?.[0] || {};
 
     const defaultgif = mediaObj(m.gif);
+    const mediumgif = mediaObj(m.mediumgif);
     const tinygif = mediaObj(m.tinygif);
-    const medgif = mediaObj(m.mediumgif);
     const nanogif = mediaObj(m.nanogif);
 
     const gif =
-      [defaultgif, tinygif, medgif, nanogif].find(
-        (candidate) => !candidate.size_limit_exceeded,
+      [defaultgif, mediumgif, tinygif, nanogif].find(
+        (candidate) => candidate.byte_count > 0 && !candidate.size_limit_exceeded,
       ) || EMPTY_GIF;
 
     return {
