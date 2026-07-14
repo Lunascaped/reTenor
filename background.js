@@ -1,6 +1,6 @@
 const TENOR_API_KEY = "3Z0688EVWYKH";
 const EMPTY_GIF = { url: "", width: 0, height: 0, byte_count: 0, size_limit_exceeded: false, still_image_url: "" };
-const FILE_SIZE_LIMIT = "15728640"; // 15 MB
+const FILE_SIZE_LIMIT = 15728640; // 15 MB
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.action === "search" || msg.action === "categoryView") {
