@@ -23,12 +23,24 @@
       const parsed = new URL(url, location.origin);
       const cursor = parsed.searchParams.get("cursor") || "";
 
+      // Post/reply
       if (url.includes("/foundmedia/search.json")) {
         return { action: "search", query: parsed.searchParams.get("q") || "", cursor };
       }
       if (url.includes("/foundmedia/categories.json")) {
         return { action: "categories" };
       }
+
+      // Chat
+      if (url.includes("/GifEnumerateCategoryQuery")) {
+        return { action: "trending" };
+      }
+      if (url.includes("/GifSearchQuery")) {
+        const params = JSON.decode(parsed.searchParams.get("variables") || "{}"); // there is no cursor in this view
+        return { action: "chatSearch", query: params.query || "" };
+      }
+
+      // Post/reply (cont.)
       const catMatch = parsed.pathname.match(/\/foundmedia\/categories\/([^/.]+)\.json/);
       if (catMatch) {
         return { action: "categoryView", query: catMatch[1].replace(/_/g, " "), cursor };
@@ -37,6 +49,25 @@
     return null;
   }
 
+  // Intercept fetch requests (for Chat)
+  const _fetch = window.fetch;
+  window.fetch = async function (input, init) {
+    const url = input.href;
+    const match = matchUrl(String(url));
+    if (!match) return _fetch.apply(this, arguments);
+
+    return requestTenor(match).then((payload) => {
+      const text = JSON.stringify(payload);
+      const response = new Response(text, {
+        status: 200,
+        statusText: "OK",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+      });
+      return response;
+    });
+  };
+
+  // Intercept XHR requests (for Post/Reply)
   const _open = XMLHttpRequest.prototype.open;
   const _send = XMLHttpRequest.prototype.send;
   const _abort = XMLHttpRequest.prototype.abort;
