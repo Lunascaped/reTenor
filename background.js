@@ -23,7 +23,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
   // Chat
   if (msg.action === "chatSearch") {
-    fetchTenorChatSearch(msg.query).then(sendResponse);
+    fetchTenorSearchChat(msg.query).then(sendResponse);
     return true;
   }
   if (msg.action === "trending") {
@@ -53,7 +53,7 @@ async function fetchTenorSearchPost(query, cursor) {
   }
 }
 
-async function fetchTenorChatSearch(query) {
+async function fetchTenorSearchChat(query) {
   try {
     const data = await fetchTenorSearch(query, null);
     const items = transformChatSearch(data);

@@ -36,7 +36,7 @@
         return { action: "trending" };
       }
       if (url.includes("/GifSearchQuery")) {
-        const params = JSON.decode(parsed.searchParams.get("variables") || "{}"); // there is no cursor in this view
+        const params = JSON.parse(parsed.searchParams.get("variables") || "{}");
         return { action: "chatSearch", query: params.query || "" };
       }
 
