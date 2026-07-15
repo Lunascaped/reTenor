@@ -25,7 +25,11 @@
 
       // Post/reply
       if (url.includes("/foundmedia/search.json")) {
-        return { action: "search", query: parsed.searchParams.get("q") || "", cursor };
+        return {
+          action: "search",
+          query: parsed.searchParams.get("q") || "",
+          cursor,
+        };
       }
       if (url.includes("/foundmedia/categories.json")) {
         return { action: "categories" };
@@ -41,9 +45,15 @@
       }
 
       // Post/reply (cont.)
-      const catMatch = parsed.pathname.match(/\/foundmedia\/categories\/([^/.]+)\.json/);
+      const catMatch = parsed.pathname.match(
+        /\/foundmedia\/categories\/([^/.]+)\.json/,
+      );
       if (catMatch) {
-        return { action: "categoryView", query: catMatch[1].replace(/_/g, " "), cursor };
+        return {
+          action: "categoryView",
+          query: catMatch[1].replace(/_/g, " "),
+          cursor,
+        };
       }
     } catch {}
     return null;
@@ -98,12 +108,18 @@
       };
       for (const key in fake) {
         const value = fake[key];
-        Object.defineProperty(xhr, key, { get: () => value, configurable: true });
+        Object.defineProperty(xhr, key, {
+          get: () => value,
+          configurable: true,
+        });
       }
 
       xhr.getResponseHeader = (name) =>
-        name.toLowerCase() === "content-type" ? "application/json; charset=utf-8" : null;
-      xhr.getAllResponseHeaders = () => "content-type: application/json; charset=utf-8\r\n";
+        name.toLowerCase() === "content-type"
+          ? "application/json; charset=utf-8"
+          : null;
+      xhr.getAllResponseHeaders = () =>
+        "content-type: application/json; charset=utf-8\r\n";
 
       xhr.onreadystatechange?.(new Event("readystatechange"));
       xhr.dispatchEvent(new Event("readystatechange"));

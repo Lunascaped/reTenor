@@ -170,14 +170,18 @@ function selectBestMediaForResult(r) {
   const m = r.media?.[0] || {};
 
   // see https://tenor.com/gifapi/documentation#responseobjects-gifformat for reference
-  const mediaCandidates = ["gif", "mediumgif", "tinygif", "nanogif"].map((key) => mediaObj(m[key]));
+  const mediaCandidates = ["gif", "mediumgif", "tinygif", "nanogif"].map(
+    (key) => mediaObj(m[key]),
+  );
 
   const gif =
     mediaCandidates.find(
-      (candidate) => candidate.byte_count > 0 && !candidate.size_limit_exceeded
+      (candidate) => candidate.byte_count > 0 && !candidate.size_limit_exceeded,
     ) || EMPTY_GIF;
 
-  const thumbnail_images = mediaCandidates.filter((candidate) => candidate.byte_count > 0);
+  const thumbnail_images = mediaCandidates.filter(
+    (candidate) => candidate.byte_count > 0,
+  );
 
   return { gif, thumbnail_images };
 }
