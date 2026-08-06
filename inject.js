@@ -23,20 +23,61 @@
       const parsed = new URL(url, location.origin);
       const cursor = parsed.searchParams.get("cursor") || "";
 
+      // Post/reply
       if (url.includes("/foundmedia/search.json")) {
-        return { action: "search", query: parsed.searchParams.get("q") || "", cursor };
+        return {
+          action: "search",
+          query: parsed.searchParams.get("q") || "",
+          cursor,
+        };
       }
       if (url.includes("/foundmedia/categories.json")) {
         return { action: "categories" };
       }
-      const catMatch = parsed.pathname.match(/\/foundmedia\/categories\/([^/.]+)\.json/);
+
+      // Chat
+      if (url.includes("/GifEnumerateCategoryQuery")) {
+        return { action: "trending" };
+      }
+      if (url.includes("/GifSearchQuery")) {
+        const params = JSON.parse(parsed.searchParams.get("variables") || "{}");
+        return { action: "chatSearch", query: params.query || "" };
+      }
+
+      // Post/reply (cont.)
+      const catMatch = parsed.pathname.match(
+        /\/foundmedia\/categories\/([^/.]+)\.json/,
+      );
       if (catMatch) {
-        return { action: "categoryView", query: catMatch[1].replace(/_/g, " "), cursor };
+        return {
+          action: "categoryView",
+          query: catMatch[1].replace(/_/g, " "),
+          cursor,
+        };
       }
     } catch {}
     return null;
   }
 
+  // Intercept fetch requests (for Chat)
+  const _fetch = window.fetch;
+  window.fetch = async function (input, init) {
+    const url = input.href;
+    const match = matchUrl(String(url));
+    if (!match) return _fetch.apply(this, arguments);
+
+    return requestTenor(match).then((payload) => {
+      const text = JSON.stringify(payload);
+      const response = new Response(text, {
+        status: 200,
+        statusText: "OK",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+      });
+      return response;
+    });
+  };
+
+  // Intercept XHR requests (for Post/Reply)
   const _open = XMLHttpRequest.prototype.open;
   const _send = XMLHttpRequest.prototype.send;
   const _abort = XMLHttpRequest.prototype.abort;
@@ -67,12 +108,18 @@
       };
       for (const key in fake) {
         const value = fake[key];
-        Object.defineProperty(xhr, key, { get: () => value, configurable: true });
+        Object.defineProperty(xhr, key, {
+          get: () => value,
+          configurable: true,
+        });
       }
 
       xhr.getResponseHeader = (name) =>
-        name.toLowerCase() === "content-type" ? "application/json; charset=utf-8" : null;
-      xhr.getAllResponseHeaders = () => "content-type: application/json; charset=utf-8\r\n";
+        name.toLowerCase() === "content-type"
+          ? "application/json; charset=utf-8"
+          : null;
+      xhr.getAllResponseHeaders = () =>
+        "content-type: application/json; charset=utf-8\r\n";
 
       xhr.onreadystatechange?.(new Event("readystatechange"));
       xhr.dispatchEvent(new Event("readystatechange"));
