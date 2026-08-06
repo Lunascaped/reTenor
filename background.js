@@ -57,9 +57,9 @@ async function fetchTenorSearchChat(query) {
   try {
     const data = await fetchTenorSearch(query, null);
     const items = transformChatSearch(data);
-    return { data: { gif_search_slice: { items } } };
+    return { data: { gif_search_slice: { __typename: "GifSearchSlice", items } } };
   } catch {
-    return { data: { gif_search_slice: { items: [] } } };
+    return { data: { gif_search_slice: { __typename: "GifSearchSlice", items: [] } } };
   }
 }
 
@@ -87,9 +87,9 @@ async function fetchTenorTrending() {
     const res = await fetch(`${TENOR_API_URL}/trending?${params}`);
     const data = await res.json();
     const items = transformChatSearch(data);
-    return { data: { gif_enumerate_category_slice: { items } } };
+    return { data: { gif_enumerate_category_slice: {__typename: "GifEnumerateCategorySlice", items } } };
   } catch {
-    return { data: { gif_enumerate_category_slice: { items: [] } } };
+    return { data: { gif_enumerate_category_slice: { __typename: "GifEnumerateCategorySlice", items: [] } } };
   }
 }
 
@@ -155,13 +155,18 @@ function transformChatSearch(tenor) {
     const { gif, thumbnail_images } = selectBestMediaForResult(r);
 
     return {
+      __typename: "GifItem",
       full_image: {
+        __typename: "GifImage",
         height: gif.height,
         width: gif.width,
         url: gif.url,
       },
       id: `tenor_${r.id}`,
-      thumbnail_images: thumbnail_images.map((img) => ({ url: img.url })),
+      thumbnail_images: thumbnail_images.map((img) => ({
+        __typename: "GifImage",
+        url: img.url,
+      })),
     };
   });
 }
