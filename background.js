@@ -11,19 +11,8 @@ const EMPTY_GIF = {
 const FILE_SIZE_LIMIT = 15728640; // 15 MB
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-  // Post/reply
-  if (msg.action === "search" || msg.action === "categoryView") {
-    fetchTenorSearchPost(msg.query, msg.cursor).then(sendResponse);
-    return true;
-  }
-  if (msg.action === "categories") {
-    fetchTenorCategories().then(sendResponse);
-    return true;
-  }
-
-  // Chat
-  if (msg.action === "chatSearch") {
-    fetchTenorSearchChat(msg.query).then(sendResponse);
+  if (msg.action === "search") {
+    fetchGifSearch(msg.query, msg.cursor).then(sendResponse);
     return true;
   }
   if (msg.action === "trending") {
@@ -44,36 +33,13 @@ async function fetchTenorSearch(query, cursor) {
   return res.json();
 }
 
-async function fetchTenorSearchPost(query, cursor) {
+async function fetchGifSearch(query, cursor) {
   try {
     const data = await fetchTenorSearch(query, cursor);
-    return transformSearch(data);
+    const items = transformGifItems(data);
+    return { data: { gif_search_slice: { __typename: "GifSearchSlice", items, slice_info: { next_cursor: data.next || "" } } } };
   } catch {
-    return { data: { items: [] }, cursor: { next: "" } };
-  }
-}
-
-async function fetchTenorSearchChat(query) {
-  try {
-    const data = await fetchTenorSearch(query, null);
-    const items = transformChatSearch(data);
-    return { data: { gif_search_slice: { __typename: "GifSearchSlice", items } } };
-  } catch {
-    return { data: { gif_search_slice: { __typename: "GifSearchSlice", items: [] } } };
-  }
-}
-
-async function fetchTenorCategories() {
-  try {
-    const params = new URLSearchParams({
-      key: TENOR_API_KEY,
-      type: "trending",
-    });
-    const res = await fetch(`${TENOR_API_URL}/categories?${params}`);
-    const data = await res.json();
-    return transformCategories(data);
-  } catch {
-    return { data: { groups: [] }, cursor: {} };
+    return { data: { gif_search_slice: { __typename: "GifSearchSlice", items: [], slice_info: { next_cursor: "" } } } };
   }
 }
 
@@ -86,88 +52,44 @@ async function fetchTenorTrending() {
     });
     const res = await fetch(`${TENOR_API_URL}/trending?${params}`);
     const data = await res.json();
-    const items = transformChatSearch(data);
-    return { data: { gif_enumerate_category_slice: {__typename: "GifEnumerateCategorySlice", items } } };
+    const items = transformGifItems(data);
+    return { data: { gif_enumerate_category_slice: {__typename: "GifEnumerateCategorySlice", items, slice_info: { next_cursor: data.next || "" } } } };
   } catch {
-    return { data: { gif_enumerate_category_slice: { __typename: "GifEnumerateCategorySlice", items: [] } } };
+    return { data: { gif_enumerate_category_slice: { __typename: "GifEnumerateCategorySlice", items: [], slice_info: { next_cursor: "" } } } };
   }
 }
 
-function transformCategories(tenor) {
-  const groups = (tenor.tags || []).map((category) => ({
-    display_name: category.name,
-    id: category.searchterm.toLowerCase().replace(/\s+/g, "_"),
-    thumbnail_images: [
-      {
-        url: category.image,
-        width: 200,
-        height: 200,
-        byte_count: 0,
-        still_image_url: category.image,
-      },
-      {
-        url: category.image,
-        width: 200,
-        height: 200,
-        byte_count: 0,
-        still_image_url: category.image,
-      },
-    ],
-    original_image: {
-      url: category.image,
-      width: 200,
-      height: 200,
-      byte_count: 0,
-      still_image_url: category.image,
-    },
-    object_type: "group",
-  }));
-
-  return { data: { groups }, cursor: {} };
-}
-
-function transformSearch(tenor) {
-  const items = (tenor.results || []).map((r) => {
-    const { gif, thumbnail_images } = selectBestMediaForResult(r);
-
-    return {
-      provider: { name: "tenor", display_name: "Tenor", icon_images: [] },
-      item_type: "gif",
-      id: `tenor_${r.id}`,
-      found_media_origin: { provider: "tenor", id: String(r.id) },
-      url: r.itemurl || r.url || "",
-      thumbnail_images,
-      original_image: gif,
-      preview_image: gif,
-      alt_text: r.title || "",
-      object_type: "item",
-    };
-  });
-
-  return {
-    data: { items },
-    cursor: { next: tenor.next || "" },
-  };
-}
-
-function transformChatSearch(tenor) {
+function transformGifItems(tenor) {
   return (tenor.results || []).map((r) => {
     const { gif, thumbnail_images } = selectBestMediaForResult(r);
-
-    return {
+    const item = {
       __typename: "GifItem",
+      alt_text: r.title || "",
       full_image: {
         __typename: "GifImage",
         height: gif.height,
-        width: gif.width,
+        still_image_url: gif.still_image_url,
         url: gif.url,
+        width: gif.width,
       },
       id: `tenor_${r.id}`,
+      preview_image: {
+        height: gif.height,
+        still_image_url: gif.still_image_url,
+        url: gif.url,
+        width: gif.width,
+      },
+      provider: { display_name: "Tenor", id: "tenor" },
       thumbnail_images: thumbnail_images.map((img) => ({
         __typename: "GifImage",
+        height: img.height,
+        still_image_url: img.still_image_url,
         url: img.url,
+        width: img.width,
       })),
     };
+    console.log("gif item:", JSON.stringify(item, null, 2));
+    return item;
   });
 }
 

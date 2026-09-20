@@ -21,39 +21,13 @@
   function matchUrl(url) {
     try {
       const parsed = new URL(url, location.origin);
-      const cursor = parsed.searchParams.get("cursor") || "";
 
-      // Post/reply
-      if (url.includes("/foundmedia/search.json")) {
-        return {
-          action: "search",
-          query: parsed.searchParams.get("q") || "",
-          cursor,
-        };
-      }
-      if (url.includes("/foundmedia/categories.json")) {
-        return { action: "categories" };
-      }
-
-      // Chat
-      if (url.includes("/GifEnumerateCategoryQuery")) {
-        return { action: "trending" };
-      }
-      if (url.includes("/GifSearchQuery")) {
+      if (url.includes("/GifSearch?") || url.includes("/GifSearchQuery")) {
         const params = JSON.parse(parsed.searchParams.get("variables") || "{}");
-        return { action: "chatSearch", query: params.query || "" };
+        return { action: "search", query: params.query || "", cursor: params.cursor || "" };
       }
-
-      // Post/reply (cont.)
-      const catMatch = parsed.pathname.match(
-        /\/foundmedia\/categories\/([^/.]+)\.json/,
-      );
-      if (catMatch) {
-        return {
-          action: "categoryView",
-          query: catMatch[1].replace(/_/g, " "),
-          cursor,
-        };
+      if (url.includes("/GifEnumerateCategory?") || url.includes("/GifEnumerateCategoryQuery")) {
+        return { action: "trending" };
       }
     } catch {}
     return null;
@@ -62,8 +36,8 @@
   // Intercept fetch requests (for Chat)
   const _fetch = window.fetch;
   window.fetch = async function (input, init) {
-    const url = input.href;
-    const match = matchUrl(String(url));
+    const url = input.url || input.href || String(input);
+    const match = matchUrl(url);
     if (!match) return _fetch.apply(this, arguments);
 
     return requestTenor(match).then((payload) => {
