@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "reTenor",
-  "version": "1.2",
-  "description": "Replaces Twitter's GIF search with Tenor's",
+  "version": "1.3",
+  "description": "Adds Tenor GIFs to Twitter search",
   "permissions": [""],
   "host_permissions": [
     "https://api.tenor.com/*",
@@ -11,7 +11,7 @@
   ],
   "background": {
     "service_worker": "background.js",
-	"scripts": ["background.js"]
+    "scripts": ["background.js"]
   },
   "icons": {
     "16": "icons/icon16.png",
@@ -32,17 +32,15 @@
     }
   ],
   "browser_specific_settings": {
-  "gecko": {
-    "id": "retenor@lunascape.gay",
-    "data_collection_permissions": {
-      "required": [
-        "none"
-      ]
+    "gecko": {
+      "id": "retenor@lunascape.gay",
+      "data_collection_permissions": {
+        "required": ["none"]
+      },
+      "strict_min_version": "140.0"
     },
-    "strict_min_version": "140.0"
-  },
-  "gecko_android":{
-	"strict_min_version": "142.0"
+    "gecko_android": {
+      "strict_min_version": "142.0"
+    }
   }
-}
 }

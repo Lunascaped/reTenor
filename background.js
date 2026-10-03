@@ -8,7 +8,8 @@ const EMPTY_GIF = {
   size_limit_exceeded: false,
   still_image_url: "",
 };
-const FILE_SIZE_LIMIT = 15728640; // 15 MB
+
+const FILE_SIZE_LIMIT = 15000000; // a bit less than 15 MB bcuz X kinda sucks
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.action === "search") {
@@ -64,7 +65,7 @@ function transformGifItems(tenor) {
     const { gif, thumbnail_images } = selectBestMediaForResult(r);
     const item = {
       __typename: "GifItem",
-      alt_text: r.title || "",
+      alt_text: r.title || r.h1_title || r.content_description || "",
       full_image: {
         __typename: "GifImage",
         height: gif.height,
